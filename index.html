@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>الكهف</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.1/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+  <section class="section">
+    <div class="container">
+      <h1 class="title">
+        مرحبا في الكهف
+      </h1>
+      <p class="subtitle">
+        إبدا البحث
+      </p>
+      <form id="searchForm">
+        <div class="field">
+            <label class="label" for="term">: مصطلح البحث</label>
+            <div class="control">
+                <input class="input" type="text" id="term" name="term" required>
+            </div>
+        </div>
+        <div class="control">
+            <button class="button is-link" type="submit">بحث</button>
+        </div>
+    </form>
+    <div id="results"></div>
+    </div>
+  </section>
+  </body>
+  <script>
+    document.getElementById('searchForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        
+        const term = document.getElementById('term').value;
+        const data = new URLSearchParams();
+        data.append('term', term);
+        
+        fetch('https://sourceapi.onrender.com/search', {
+            method: 'POST',
+            body: data
+        })
+        .then(response => response.json())
+        .then(data => {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '';
+
+            if (data.results) {
+                data.results.forEach(result => {
+                    const resultDiv = document.createElement('div');
+                    resultDiv.className = 'result';
+
+                    const paragraph = document.createElement('p');
+                    paragraph.className = 'content';
+                    paragraph.textContent = `${result.paragraph}`;
+                    resultDiv.appendChild(paragraph);
+
+                    const linkText = document.createElement('p');
+                    linkText.className = 'content';
+                    linkText.innerHTML = `<span><strong>${result.link_text}</strong></span> <span class="icon"><i class="fas fa-book"></i></span>`;
+                    resultDiv.appendChild(linkText);
+
+                    const linkHref = document.createElement('a');
+                    linkHref.href = result.link_href;
+                    linkHref.textContent = result.link_href;
+                    linkHref.target = '_blank';
+                    linkHref.className = 'content';
+                    resultDiv.appendChild(linkHref);
+
+                    resultsDiv.appendChild(resultDiv);
+                });
+            } else {
+                resultsDiv.textContent = 'لم يتم العثور على نتائج.';
+            }
+        })
+        .catch(error => {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.textContent = `خطأ: ${error}`;
+        });
+    });
+</script>
+<script src="https://kit.fontawesome.com/a076d05399.js"></script>
+</html>
